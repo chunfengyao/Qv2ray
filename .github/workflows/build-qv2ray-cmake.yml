@@ -2,8 +2,7 @@ name: Qv2ray build matrix - cmake
 
 on:
   push:
-    branches-ignore:
-      - l10n_dev
+    branches: [l10n_dev, dev]
   release:
     types: [prereleased]
   workflow_dispatch:
@@ -56,6 +55,7 @@ jobs:
         with:
           python-version: "3.7"
           architecture: "x64"
+#          architecture: ${{ matrix.arch }}
       # =========================================================================================================
       - name: Install MSVC compiler
         if: matrix.platform == 'windows-latest'
