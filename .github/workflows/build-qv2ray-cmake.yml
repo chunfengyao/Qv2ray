@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [x64]
+        arch: [x64,arm64]
         build_type: [RelWithDebInfo, Release]
         qt_version: [5.15.0]
         include:
@@ -52,10 +52,11 @@ jobs:
         with:
           submodules: "recursive"
       - name: Install Python 3.7 version
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v3
         with:
           python-version: "3.7"
-          architecture: ${{ matrix.arch }}
+          architecture: "x64"
+#          architecture: ${{ matrix.arch }}
       # =========================================================================================================
       - name: Install MSVC compiler
         if: matrix.platform == 'windows-latest'
@@ -116,7 +117,12 @@ jobs:
         if: matrix.platform == 'macos-latest'
         with:
           node-version: "12.x"
-      - run: npm install -g appdmg
+      - run: |
+          npm install -g node-gyp
+          ls -alFh /Users/runner/hostedtoolcache/node/ || true
+          cat /Users/runner/hostedtoolcache/node/12.22.12/x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/input.py | sed "s/'rU'/'r'/g" | tee /Users/runner/hostedtoolcache/node/12.22.12/x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/input.py.replace || true
+          mv /Users/runner/hostedtoolcache/node/12.22.12/x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/input.py.replace /Users/runner/hostedtoolcache/node/12.22.12/x64/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/input.py
+          npm install -g appdmg
         if: matrix.platform == 'macos-latest'
       - name: macOS - ${{ matrix.qt_version }} - Generate Dependencies and Build
         shell: bash
